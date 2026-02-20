@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Label Harga - Kopmen Agritek</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .paper {
+            width: 21cm;
+            background: white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            margin: 0 auto;
+            padding: 5mm 5mm 0 5mm;
+        }
+        .label-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2mm;
+        }
+        .label {
+            width: 6cm;
+            height: 4cm;
+            border: 1px dashed #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2mm;
+            box-sizing: border-box;
+            page-break-inside: avoid;
+            background: white;
+        }
+        .store-name {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #2c5f2d;
+            margin-bottom: 2px;
+        }
+        .product-name {
+            font-size: 11pt;
+            font-weight: bold;
+            margin: 2px 0;
+            word-break: break-word;
+            max-height: 1.5cm;
+            overflow: hidden;
+        }
+        .price {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #b22222;
+            margin: 2px 0;
+        }
+        .footer-note {
+            font-size: 7pt;
+            color: #777;
+        }
+        .print-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #2c5f2d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .paper {
+                box-shadow: none;
+                padding: 0;
+                width: 100%;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">Cetak Label</button>
+    <div class="paper">
+        <div class="label-grid" id="labelContainer">
+            <!-- Label akan diisi oleh JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Ambil parameter URL
+        function getParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Format harga ke Rupiah
+        function formatHarga(harga) {
+            if (harga && !isNaN(parseFloat(harga))) {
+                return 'Rp' + parseFloat(harga).toLocaleString('id-ID');
+            }
+            return harga || 'Rp0';
+        }
+
+        // Data produk
+        let products = [];
+
+        // Cek apakah ada parameter 'produk' (untuk banyak produk)
+        const produkParam = getParameter('produk');
+        if (produkParam) {
+            // Format: nama1|harga1,nama2|harga2,...
+            const items = decodeURIComponent(produkParam).split(',');
+            items.forEach(item => {
+                const parts = item.split('|');
+                if (parts.length === 2) {
+                    const nama = decodeURIComponent(parts[0]);
+                    const harga = decodeURIComponent(parts[1]);
+                    products.push({ nama, harga });
+                }
+            });
+        } else {
+            // Fallback ke parameter tunggal (nama, harga, jumlah)
+            const nama = getParameter('nama');
+            const harga = getParameter('harga');
+            const jumlah = parseInt(getParameter('jumlah')) || 21;
+            if (nama && harga) {
+                const decodedNama = decodeURIComponent(nama);
+                const decodedHarga = decodeURIComponent(harga);
+                for (let i = 0; i < jumlah; i++) {
+                    products.push({ nama: decodedNama, harga: decodedHarga });
+                }
+            }
+        }
+
+        const container = document.getElementById('labelContainer');
+
+        if (products.length === 0) {
+            // Tampilkan pesan error
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'label';
+            errorDiv.innerHTML = `
+                <div class="store-name">Kopmen Agritek</div>
+                <div style="color:red; font-weight:bold;">Data tidak lengkap</div>
+                <div>Periksa parameter URL</div>
+            `;
+            container.appendChild(errorDiv);
+        } else {
+            products.forEach(p => {
+                const label = document.createElement('div');
+                label.className = 'label';
+                label.innerHTML = `
+                    <div class="store-name">Kopmen Agritek</div>
+                    <div class="product-name">${p.nama}</div>
+                    <div class="price">${formatHarga(p.harga)}</div>
+                    <div class="footer-note">*harga dapat berubah</div>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        // Otomatis munculkan dialog print setelah halaman dimuat
+        window.onload = function() {
+            setTimeout(() => {
+                window.print();
+            }, 500);
+        };
+    </script>
+</body>
+</html>
