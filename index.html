@@ -29,6 +29,7 @@ hr{border-top:1px dashed #000;}
 table{
     width:100%;
     font-size:11px;
+    border-collapse: collapse;
 }
 
 td{
@@ -114,7 +115,7 @@ window.onload = function(){
                     <td colspan="3">${nama_produk[i]}</td>
                 </tr>
                 <tr>
-                    <td>${qty[i]} x ${formatRupiah(harga_produk[i])}</td>
+                    <td style="padding-left:15px;">${qty[i]} x ${formatRupiah(harga_produk[i])}</td>
                     <td></td>
                     <td align="right">${formatRupiah(sub_total[i])}</td>
                 </tr>
@@ -143,12 +144,28 @@ window.onload = function(){
 
 <hr>
 
-ID : <span id="id_transaksi"></span><br>
-Tanggal : <span id="tanggal"></span><br>
-Pelanggan : <span id="nama_pelanggan"></span>
+<!-- Info Transaksi Rapi dengan titik dua rata -->
+<table style="width:100%; font-size:11px; margin-bottom:5px;">
+<tr>
+    <td style="width:35%;">ID</td>
+    <td style="width:5%; text-align:center;">:</td>
+    <td id="id_transaksi"></td>
+</tr>
+<tr>
+    <td>Tanggal</td>
+    <td style="text-align:center;">:</td>
+    <td id="tanggal"></td>
+</tr>
+<tr>
+    <td>Pelanggan</td>
+    <td style="text-align:center;">:</td>
+    <td id="nama_pelanggan"></td>
+</tr>
+</table>
 
 <hr>
 
+<!-- Detail Produk -->
 <table id="detail_produk"></table>
 
 <hr>
