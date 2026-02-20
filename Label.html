@@ -44,14 +44,8 @@
             page-break-inside: avoid;
             background: white;
         }
-        .store-name {
-            font-size: 12pt;
-            font-weight: bold;
-            color: #2c5f2d;
-            margin-bottom: 2px;
-        }
         .product-name {
-            font-size: 11pt;
+            font-size: 12pt;
             font-weight: bold;
             margin: 2px 0;
             word-break: break-word;
@@ -59,14 +53,21 @@
             overflow: hidden;
         }
         .price {
-            font-size: 16pt;
+            font-size: 20pt; /* diperbesar dari 16pt */
             font-weight: bold;
             color: #b22222;
-            margin: 2px 0;
+            margin: 4px 0;
+        }
+        .store-name {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c5f2d;
+            margin-top: 4px;
         }
         .footer-note {
             font-size: 7pt;
             color: #777;
+            margin-top: 2px;
         }
         .print-button {
             display: block;
@@ -155,9 +156,10 @@
             const errorDiv = document.createElement('div');
             errorDiv.className = 'label';
             errorDiv.innerHTML = `
-                <div class="store-name">Kopmen Agritek</div>
-                <div style="color:red; font-weight:bold;">Data tidak lengkap</div>
+                <div class="product-name" style="color:red;">Data tidak lengkap</div>
                 <div>Periksa parameter URL</div>
+                <div class="store-name">Kopmen Agritek</div>
+                <div class="footer-note">*harga dapat berubah</div>
             `;
             container.appendChild(errorDiv);
         } else {
@@ -165,9 +167,9 @@
                 const label = document.createElement('div');
                 label.className = 'label';
                 label.innerHTML = `
-                    <div class="store-name">Kopmen Agritek</div>
                     <div class="product-name">${p.nama}</div>
                     <div class="price">${formatHarga(p.harga)}</div>
+                    <div class="store-name">Kopmen Agritek</div>
                     <div class="footer-note">*harga dapat berubah</div>
                 `;
                 container.appendChild(label);
