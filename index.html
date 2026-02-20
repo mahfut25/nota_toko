@@ -78,7 +78,13 @@ function getParam(param){
 
 function formatRupiah(angka){
     if(!angka) return "0";
-    return new Intl.NumberFormat('id-ID').format(angka);
+
+    // hapus semua karakter selain angka
+    angka = angka.toString().replace(/[^0-9]/g,'');
+
+    if(angka === "") return "0";
+
+    return new Intl.NumberFormat('id-ID').format(parseInt(angka));
 }
 
 function cetakNota(){
