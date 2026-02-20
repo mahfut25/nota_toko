@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Struk Belanja</title>
+
+<style>
+body{
+    font-family: monospace;
+    background:#f4f4f4;
+}
+
+.struk{
+    width:230px; /* cocok untuk thermal 58mm */
+    margin:auto;
+    background:#fff;
+    padding:10px;
+    border:1px solid #ccc;
+}
+
+.center{text-align:center;}
+hr{border-top:1px dashed #000;}
+
+.logo{
+    width:60px;
+    margin-bottom:5px;
+}
+
+table{
+    width:100%;
+    font-size:11px;
+}
+
+td{
+    vertical-align:top;
+}
+
+.total{
+    font-weight:bold;
+    font-size:13px;
+}
+
+.thanks{
+    margin-top:10px;
+    text-align:center;
+    font-weight:bold;
+}
+
+.btn-print{
+    margin-top:15px;
+    width:100%;
+    padding:8px;
+    background:black;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+/* Saat print tombol hilang */
+@media print {
+    .btn-print{
+        display:none;
+    }
+    body{
+        background:white;
+    }
+    .struk{
+        border:none;
+    }
+}
+</style>
+
+<script>
+function getParam(param){
+    let urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+function formatRupiah(angka){
+    if(!angka) return "0";
+    return new Intl.NumberFormat('id-ID').format(angka);
+}
+
+function cetakNota(){
+    window.print();
+}
+
+window.onload = function(){
+
+    document.getElementById("nama_toko").innerHTML = getParam("nama_toko");
+    document.getElementById("alamat_toko").innerHTML = getParam("alamat_toko");
+    document.getElementById("telp_toko").innerHTML = "Telp: " + getParam("telp_toko");
+    document.getElementById("id_transaksi").innerHTML = getParam("id_transaksi");
+    document.getElementById("tanggal").innerHTML = getParam("tanggal");
+    document.getElementById("nama_pelanggan").innerHTML = getParam("nama_pelanggan");
+
+    let nama_produk = (getParam("nama_produk") || "").split(",");
+    let harga_produk = (getParam("harga_produk") || "").split(",");
+    let qty = (getParam("qty") || "").split(",");
+    let sub_total = (getParam("sub_total") || "").split(",");
+
+    let tabel = document.getElementById("detail_produk");
+
+    for(let i=0; i<nama_produk.length; i++){
+        if(nama_produk[i] !== ""){
+            let row = `
+                <tr>
+                    <td colspan="3">${nama_produk[i]}</td>
+                </tr>
+                <tr>
+                    <td>${qty[i]} x ${formatRupiah(harga_produk[i])}</td>
+                    <td></td>
+                    <td align="right">${formatRupiah(sub_total[i])}</td>
+                </tr>
+            `;
+            tabel.innerHTML += row;
+        }
+    }
+
+    document.getElementById("total").innerHTML = formatRupiah(getParam("total"));
+    document.getElementById("tunai").innerHTML = formatRupiah(getParam("tunai"));
+    document.getElementById("kembali").innerHTML = formatRupiah(getParam("kembali"));
+}
+</script>
+</head>
+
+<body>
+
+<div class="struk">
+
+<div class="center">
+    <img src="logo.png" class="logo"><br>
+    <b id="nama_toko"></b><br>
+    <span id="alamat_toko"></span><br>
+    <span id="telp_toko"></span>
+</div>
+
+<hr>
+
+ID : <span id="id_transaksi"></span><br>
+Tanggal : <span id="tanggal"></span><br>
+Pelanggan : <span id="nama_pelanggan"></span>
+
+<hr>
+
+<table id="detail_produk"></table>
+
+<hr>
+
+<table>
+<tr>
+    <td>Total</td>
+    <td></td>
+    <td align="right" class="total" id="total"></td>
+</tr>
+<tr>
+    <td>Tunai</td>
+    <td></td>
+    <td align="right" id="tunai"></td>
+</tr>
+<tr>
+    <td>Kembali</td>
+    <td></td>
+    <td align="right" id="kembali"></td>
+</tr>
+</table>
+
+<div class="thanks">
+    Terima kasih telah berbelanja 🙏
+</div>
+
+<button class="btn-print" onclick="cetakNota()">🖨 Cetak Nota</button>
+
+</div>
+
+</body>
+</html>
