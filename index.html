@@ -94,20 +94,21 @@ function cetakNota(){
 
     function formatDateTime(datetimeStr) {
     if (!datetimeStr) return "";
-    // Asumsi format input: YYYY-MM-DD HH:MM:SS atau YYYY-MM-DDTHH:MM:SS
-    let parts = datetimeStr.split(' ');
-    let datePart = parts[0]; // YYYY-MM-DD
-    let timePart = parts[1] ? parts[1].substring(0,5) : ''; // HH:MM
-    
-    if (datePart) {
-        // Ubah tanggal ke format DD/MM/YYYY
-        let ymd = datePart.split('-');
-        if (ymd.length === 3) {
-            datePart = `${ymd[2]}/${ymd[1]}/${ymd[0]}`;
-        }
+
+    // Coba parse menggunakan Date object (mendukung format YYYY-MM-DD HH:MM:SS atau YYYY-MM-DDTHH:MM:SS)
+    let date = new Date(datetimeStr.replace(' ', 'T')); // Ganti spasi dengan 'T' untuk ISO
+    if (!isNaN(date.getTime())) {
+        let day = String(date.getDate()).padStart(2, '0');
+        let month = String(date.getMonth() + 1).padStart(2, '0');
+        let year = date.getFullYear();
+        let hours = String(date.getHours()).padStart(2, '0');
+        let minutes = String(date.getMinutes()).padStart(2, '0');
+        let seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     }
-    
-    return timePart ? `${datePart} ${timePart}` : datePart;
+
+    // Jika gagal parse (misal format sudah DD/MM/YYYY), kembalikan string asli
+    return datetimeStr;
     }
     
 window.onload = function(){
