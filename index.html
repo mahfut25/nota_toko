@@ -126,9 +126,9 @@ window.onload = function(){
         }
     }
 
-    document.getElementById("total").innerHTML = formatRupiah(getParam("total"));
-    document.getElementById("tunai").innerHTML = formatRupiah(getParam("tunai"));
-    document.getElementById("kembali").innerHTML = formatRupiah(getParam("kembali"));
+    document.getElementById("total").innerHTML = "Rp" + formatRupiah(getParam("total"));
+    document.getElementById("tunai").innerHTML = "Rp" + formatRupiah(getParam("tunai"));
+    document.getElementById("kembali").innerHTML = "Rp" + formatRupiah(getParam("kembali"));
 }
 </script>
 </head>
