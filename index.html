@@ -100,6 +100,8 @@ window.onload = function(){
     document.getElementById("id_transaksi").innerHTML = getParam("id_transaksi");
     document.getElementById("tanggal").innerHTML = getParam("tanggal");
     document.getElementById("nama_pelanggan").innerHTML = getParam("nama_pelanggan");
+    
+    document.getElementById("nama_kasir").innerHTML = getParam("nama_kasir");
 
     let nama_produk = (getParam("nama_produk") || "").split(",");
     let harga_produk = (getParam("harga_produk") || "").split(",");
@@ -161,6 +163,11 @@ window.onload = function(){
     <td style="text-align:center;">:</td>
     <td id="nama_pelanggan"></td>
 </tr>
+<tr>
+    <td>Kasir</td>
+    <td style="text-align:center;">:</td>
+    <td id="nama_kasir"></td>
+</tr>
 </table>
 
 <hr>
@@ -197,4 +204,4 @@ window.onload = function(){
 </div>
 
 </body>
-</html>
+</html> 
