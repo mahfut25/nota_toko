@@ -92,13 +92,31 @@ function cetakNota(){
     window.print();
 }
 
+    function formatDateTime(datetimeStr) {
+    if (!datetimeStr) return "";
+    // Asumsi format input: YYYY-MM-DD HH:MM:SS atau YYYY-MM-DDTHH:MM:SS
+    let parts = datetimeStr.split(' ');
+    let datePart = parts[0]; // YYYY-MM-DD
+    let timePart = parts[1] ? parts[1].substring(0,5) : ''; // HH:MM
+    
+    if (datePart) {
+        // Ubah tanggal ke format DD/MM/YYYY
+        let ymd = datePart.split('-');
+        if (ymd.length === 3) {
+            datePart = `${ymd[2]}/${ymd[1]}/${ymd[0]}`;
+        }
+    }
+    
+    return timePart ? `${datePart} ${timePart}` : datePart;
+    }
+    
 window.onload = function(){
 
     document.getElementById("nama_toko").innerHTML = getParam("nama_toko");
     document.getElementById("alamat_toko").innerHTML = getParam("alamat_toko");
     document.getElementById("telp_toko").innerHTML = "Telp: " + getParam("telp_toko");
     document.getElementById("id_transaksi").innerHTML = getParam("id_transaksi");
-    document.getElementById("tanggal").innerHTML = getParam("tanggal");
+    document.getElementById("tanggal").innerHTML = formatDateTime(getParam("tanggal"));
     document.getElementById("nama_pelanggan").innerHTML = getParam("nama_pelanggan");
     
     document.getElementById("nama_kasir").innerHTML = getParam("nama_kasir");
