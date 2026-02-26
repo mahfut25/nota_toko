@@ -10,11 +10,25 @@ body{font-family:monospace;background:#f4f4f4;}
 .struk{background:#fff;padding:10px;border:1px solid #ccc;margin-bottom:20px;}
 .center{text-align:center;}
 hr{border-top:1px dashed #000;}
+.logo{width:60px;margin-bottom:5px;}
 table{width:100%;font-size:11px;border-collapse:collapse;}
 .total{font-weight:bold;font-size:13px;}
 .qr{text-align:center;margin-top:8px;}
 .copy-title{text-align:center;font-weight:bold;font-size:12px;margin-bottom:5px;}
-.btn-print{margin-top:15px;width:100%;padding:8px;background:black;color:white;border:none;}
+.footer-text{
+  margin-top:10px;
+  text-align:center;
+  font-size:11px;
+  font-weight:bold;
+}
+.btn-print{
+  margin-top:15px;
+  width:100%;
+  padding:8px;
+  background:black;
+  color:white;
+  border:none;
+}
 @media print {
   .btn-print{display:none;}
   body{background:white;}
@@ -32,20 +46,37 @@ function formatRupiah(a){
   return new Intl.NumberFormat('id-ID').format(a);
 }
 
-/* FUNGSI MEMBERSIHKAN FORMAT RUPIAH */
 function parseRupiah(str){
   if(!str) return 0;
-  return parseFloat(
-    str.replace(/[^0-9]/g,'')
-  ) || 0;
+  return parseFloat(str.replace(/[^0-9]/g,'')) || 0;
 }
 
-function isiStruk(prefix){
+function formatDateTime(datetimeStr){
+  if (!datetimeStr) return "";
+  let date = new Date(datetimeStr.replace(' ', 'T'));
+  if (!isNaN(date.getTime())) {
+      let d = String(date.getDate()).padStart(2,'0');
+      let m = String(date.getMonth()+1).padStart(2,'0');
+      let y = date.getFullYear();
+      let h = String(date.getHours()).padStart(2,'0');
+      let min = String(date.getMinutes()).padStart(2,'0');
+      return `${d}/${m}/${y} ${h}:${min}`;
+  }
+  return datetimeStr;
+}
 
+function isiStruk(prefix,isArsip){
+
+  // ===== HEADER TOKO =====
+  document.getElementById(prefix+"nama_toko").innerHTML = getParam("nama_toko") || "";
+  document.getElementById(prefix+"alamat_toko").innerHTML = getParam("alamat_toko") || "";
+  document.getElementById(prefix+"telp_toko").innerHTML = "Telp: " + (getParam("telp_toko") || "");
+
+  // ===== INFO TRANSAKSI =====
   document.getElementById(prefix+"id").innerHTML = getParam("id_transaksi") || "-";
   document.getElementById(prefix+"nama").innerHTML = getParam("nama_pelanggan") || "-";
-  document.getElementById(prefix+"masuk").innerHTML = getParam("tanggal_masuk") || "-";
-  document.getElementById(prefix+"selesai").innerHTML = getParam("tanggal_selesai") || "-";
+  document.getElementById(prefix+"masuk").innerHTML = formatDateTime(getParam("tanggal_masuk"));
+  document.getElementById(prefix+"selesai").innerHTML = formatDateTime(getParam("tanggal_selesai"));
 
   let layanan = (getParam("layanan") || "").split("|");
   let berat = (getParam("berat") || "").split("|");
@@ -56,9 +87,7 @@ function isiStruk(prefix){
   tabel.innerHTML = "";
 
   for(let i=0;i<layanan.length;i++){
-
     if(layanan[i] && layanan[i].trim() !== ""){
-
       let b = parseFloat(berat[i]) || 0;
       let h = parseRupiah(harga[i]);
       let s = parseRupiah(subtotal[i]);
@@ -74,21 +103,27 @@ function isiStruk(prefix){
   }
 
   let total = parseRupiah(getParam("total"));
-  document.getElementById(prefix+"total").innerHTML =
-  "Rp" + formatRupiah(total);
+  document.getElementById(prefix+"total").innerHTML = "Rp" + formatRupiah(total);
 
-  /* QR LINK SUDAH SESUAI DOMAIN KAMU */
-  let linkStatus =
-  "https://mahfut25.github.io/nota_toko/status.html?id=" + getParam("id_transaksi");
+  // ===== QR CODE =====
+  let link;
+
+  if(isArsip){
+    // QR ARSIP → DETAIL APPSHEET
+    link = "https://www.appsheet.com/start/YOUR_APP_ID#view=Detail&id=" + getParam("id_transaksi");
+  }else{
+    // QR KONSUMEN → STATUS
+    link = "https://mahfut25.github.io/nota_toko/status.html?id=" + getParam("id_transaksi");
+  }
 
   document.getElementById(prefix+"qr").src =
   "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="
-  + encodeURIComponent(linkStatus);
+  + encodeURIComponent(link);
 }
 
 window.onload=function(){
-  isiStruk("c1_");
-  isiStruk("c2_");
+  isiStruk("c1_",false); // konsumen
+  isiStruk("c2_",true);  // arsip usaha
 }
 </script>
 </head>
@@ -96,30 +131,81 @@ window.onload=function(){
 <body>
 <div class="wrapper">
 
+<!-- ================= STRUK KONSUMEN ================= -->
 <div class="struk">
+
 <div class="copy-title">STRUK LAUNDRY - KONSUMEN</div>
-ID: <span id="c1_id"></span><br>
-Nama: <span id="c1_nama"></span><br>
-Masuk: <span id="c1_masuk"></span><br>
-Selesai: <span id="c1_selesai"></span>
-<hr>
-<table id="c1_detail"></table>
-<hr>
-Total: <span class="total" id="c1_total"></span>
-<div class="qr"><img id="c1_qr" width="100"></div>
+
+<div class="center">
+<img src="Logo.png" class="logo"><br>
+<b id="c1_nama_toko"></b><br>
+<span id="c1_alamat_toko"></span><br>
+<span id="c1_telp_toko"></span>
 </div>
 
+<hr>
+
+<table>
+<tr><td>ID</td><td>:</td><td id="c1_id"></td></tr>
+<tr><td>Pelanggan</td><td>:</td><td id="c1_nama"></td></tr>
+<tr><td>Masuk</td><td>:</td><td id="c1_masuk"></td></tr>
+<tr><td>Selesai</td><td>:</td><td id="c1_selesai"></td></tr>
+</table>
+
+<hr>
+
+<table id="c1_detail"></table>
+
+<hr>
+
+Total: <span class="total" id="c1_total"></span>
+
+<div class="qr"><img id="c1_qr" width="100"></div>
+
+<div class="footer-text">
+Terima kasih sudah mempercayakan layanan laundry anda kepada kami,  
+kami tunggu kedatangan anda kembali
+</div>
+
+</div>
+
+
+<!-- ================= STRUK ARSIP ================= -->
 <div class="struk">
+
 <div class="copy-title">ARSIP USAHA</div>
-ID: <span id="c2_id"></span><br>
-Nama: <span id="c2_nama"></span><br>
-Masuk: <span id="c2_masuk"></span><br>
-Selesai: <span id="c2_selesai"></span>
+
+<div class="center">
+<img src="Logo.png" class="logo"><br>
+<b id="c2_nama_toko"></b><br>
+<span id="c2_alamat_toko"></span><br>
+<span id="c2_telp_toko"></span>
+</div>
+
 <hr>
+
+<table>
+<tr><td>ID</td><td>:</td><td id="c2_id"></td></tr>
+<tr><td>Pelanggan</td><td>:</td><td id="c2_nama"></td></tr>
+<tr><td>Masuk</td><td>:</td><td id="c2_masuk"></td></tr>
+<tr><td>Selesai</td><td>:</td><td id="c2_selesai"></td></tr>
+</table>
+
+<hr>
+
 <table id="c2_detail"></table>
+
 <hr>
+
 Total: <span class="total" id="c2_total"></span>
+
 <div class="qr"><img id="c2_qr" width="100"></div>
+
+<div class="footer-text">
+Terima kasih sudah mempercayakan layanan laundry anda kepada kami,  
+kami tunggu kedatangan anda kembali
+</div>
+
 </div>
 
 <button class="btn-print" onclick="window.print()">Cetak</button>
