@@ -15,56 +15,71 @@ table{width:100%;font-size:11px;border-collapse:collapse;}
 .qr{text-align:center;margin-top:8px;}
 .copy-title{text-align:center;font-weight:bold;font-size:12px;margin-bottom:5px;}
 .btn-print{margin-top:15px;width:100%;padding:8px;background:black;color:white;border:none;}
-@media print {.btn-print{display:none;}body{background:white;}.struk{border:none;}}
+@media print {
+  .btn-print{display:none;}
+  body{background:white;}
+  .struk{border:none;}
+}
 </style>
 
 <script>
-function getParam(p){return new URLSearchParams(window.location.search).get(p);}
+function getParam(p){
+  return new URLSearchParams(window.location.search).get(p);
+}
+
 function formatRupiah(a){
- if(!a) return "0";
- return new Intl.NumberFormat('id-ID').format(a);
+  if(!a || isNaN(a)) return "0";
+  return new Intl.NumberFormat('id-ID').format(a);
 }
 
 function isiStruk(prefix){
 
- document.getElementById(prefix+"id").innerHTML = getParam("id_transaksi");
- document.getElementById(prefix+"nama").innerHTML = getParam("nama_pelanggan");
- document.getElementById(prefix+"masuk").innerHTML = getParam("tanggal_masuk");
- document.getElementById(prefix+"selesai").innerHTML = getParam("tanggal_selesai");
+  document.getElementById(prefix+"id").innerHTML = getParam("id_transaksi") || "-";
+  document.getElementById(prefix+"nama").innerHTML = getParam("nama_pelanggan") || "-";
+  document.getElementById(prefix+"masuk").innerHTML = getParam("tanggal_masuk") || "-";
+  document.getElementById(prefix+"selesai").innerHTML = getParam("tanggal_selesai") || "-";
 
- let layanan = (getParam("layanan")||"").split("|");
- let berat = (getParam("berat")||"").split("|");
- let harga = (getParam("harga")||"").split("|");
- let subtotal = (getParam("subtotal")||"").split("|");
+  let layanan = (getParam("layanan") || "").split("|");
+  let berat = (getParam("berat") || "").split("|");
+  let harga = (getParam("harga") || "").split("|");
+  let subtotal = (getParam("subtotal") || "").split("|");
 
- let tabel = document.getElementById(prefix+"detail");
+  let tabel = document.getElementById(prefix+"detail");
+  tabel.innerHTML = "";
 
- for(let i=0;i<layanan.length;i++){
-  if(layanan[i]!=""){
-   tabel.innerHTML += `
-    <tr><td colspan="3"><b>${layanan[i]}</b></td></tr>
-    <tr>
-     <td style="padding-left:10px">${berat[i]} Kg x ${formatRupiah(harga[i])}</td>
-     <td></td>
-     <td align="right">${formatRupiah(subtotal[i])}</td>
-    </tr>`;
+  for(let i=0;i<layanan.length;i++){
+
+    if(layanan[i] && layanan[i].trim() !== ""){
+
+      let b = parseFloat(berat[i]) || 0;
+      let h = parseFloat(harga[i]) || 0;
+      let s = parseFloat(subtotal[i]) || 0;
+
+      tabel.innerHTML += `
+        <tr><td colspan="3"><b>${layanan[i]}</b></td></tr>
+        <tr>
+          <td style="padding-left:10px">${b} Kg x Rp${formatRupiah(h)}</td>
+          <td></td>
+          <td align="right">Rp${formatRupiah(s)}</td>
+        </tr>`;
+    }
   }
- }
 
- document.getElementById(prefix+"total").innerHTML =
- "Rp"+formatRupiah(getParam("total"));
+  let total = parseFloat(getParam("total")) || 0;
+  document.getElementById(prefix+"total").innerHTML =
+  "Rp" + formatRupiah(total);
 
- let linkStatus =
- "https://USERNAME.github.io/REPO/status.html?id="+getParam("id_transaksi");
+  let linkStatus =
+  "https://USERNAME.github.io/REPO/status.html?id=" + getParam("id_transaksi");
 
- document.getElementById(prefix+"qr").src =
- "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="
- +encodeURIComponent(linkStatus);
+  document.getElementById(prefix+"qr").src =
+  "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="
+  + encodeURIComponent(linkStatus);
 }
 
 window.onload=function(){
- isiStruk("c1_");
- isiStruk("c2_");
+  isiStruk("c1_");
+  isiStruk("c2_");
 }
 </script>
 </head>
