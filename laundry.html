@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Struk Laundry</title>
+
+<style>
+body{font-family:monospace;background:#f4f4f4;}
+.wrapper{width:230px;margin:auto;}
+.struk{background:#fff;padding:10px;border:1px solid #ccc;margin-bottom:20px;}
+.center{text-align:center;}
+hr{border-top:1px dashed #000;}
+table{width:100%;font-size:11px;border-collapse:collapse;}
+.total{font-weight:bold;font-size:13px;}
+.qr{text-align:center;margin-top:8px;}
+.copy-title{text-align:center;font-weight:bold;font-size:12px;margin-bottom:5px;}
+.btn-print{margin-top:15px;width:100%;padding:8px;background:black;color:white;border:none;}
+@media print {.btn-print{display:none;}body{background:white;}.struk{border:none;}}
+</style>
+
+<script>
+function getParam(p){return new URLSearchParams(window.location.search).get(p);}
+function formatRupiah(a){
+ if(!a) return "0";
+ return new Intl.NumberFormat('id-ID').format(a);
+}
+
+function isiStruk(prefix){
+
+ document.getElementById(prefix+"id").innerHTML = getParam("id_transaksi");
+ document.getElementById(prefix+"nama").innerHTML = getParam("nama_pelanggan");
+ document.getElementById(prefix+"masuk").innerHTML = getParam("tanggal_masuk");
+ document.getElementById(prefix+"selesai").innerHTML = getParam("tanggal_selesai");
+
+ let layanan = (getParam("layanan")||"").split("|");
+ let berat = (getParam("berat")||"").split("|");
+ let harga = (getParam("harga")||"").split("|");
+ let subtotal = (getParam("subtotal")||"").split("|");
+
+ let tabel = document.getElementById(prefix+"detail");
+
+ for(let i=0;i<layanan.length;i++){
+  if(layanan[i]!=""){
+   tabel.innerHTML += `
+    <tr><td colspan="3"><b>${layanan[i]}</b></td></tr>
+    <tr>
+     <td style="padding-left:10px">${berat[i]} Kg x ${formatRupiah(harga[i])}</td>
+     <td></td>
+     <td align="right">${formatRupiah(subtotal[i])}</td>
+    </tr>`;
+  }
+ }
+
+ document.getElementById(prefix+"total").innerHTML =
+ "Rp"+formatRupiah(getParam("total"));
+
+ let linkStatus =
+ "https://USERNAME.github.io/REPO/status.html?id="+getParam("id_transaksi");
+
+ document.getElementById(prefix+"qr").src =
+ "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="
+ +encodeURIComponent(linkStatus);
+}
+
+window.onload=function(){
+ isiStruk("c1_");
+ isiStruk("c2_");
+}
+</script>
+</head>
+
+<body>
+<div class="wrapper">
+
+<div class="struk">
+<div class="copy-title">STRUK LAUNDRY - KONSUMEN</div>
+ID: <span id="c1_id"></span><br>
+Nama: <span id="c1_nama"></span><br>
+Masuk: <span id="c1_masuk"></span><br>
+Selesai: <span id="c1_selesai"></span>
+<hr>
+<table id="c1_detail"></table>
+<hr>
+Total: <span class="total" id="c1_total"></span>
+<div class="qr"><img id="c1_qr" width="100"></div>
+</div>
+
+<div class="struk">
+<div class="copy-title">ARSIP USAHA</div>
+ID: <span id="c2_id"></span><br>
+Nama: <span id="c2_nama"></span><br>
+Masuk: <span id="c2_masuk"></span><br>
+Selesai: <span id="c2_selesai"></span>
+<hr>
+<table id="c2_detail"></table>
+<hr>
+Total: <span class="total" id="c2_total"></span>
+<div class="qr"><img id="c2_qr" width="100"></div>
+</div>
+
+<button class="btn-print" onclick="window.print()">Cetak</button>
+
+</div>
+</body>
+</html>
