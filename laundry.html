@@ -32,6 +32,14 @@ function formatRupiah(a){
   return new Intl.NumberFormat('id-ID').format(a);
 }
 
+/* FUNGSI MEMBERSIHKAN FORMAT RUPIAH */
+function parseRupiah(str){
+  if(!str) return 0;
+  return parseFloat(
+    str.replace(/[^0-9]/g,'')
+  ) || 0;
+}
+
 function isiStruk(prefix){
 
   document.getElementById(prefix+"id").innerHTML = getParam("id_transaksi") || "-";
@@ -52,8 +60,8 @@ function isiStruk(prefix){
     if(layanan[i] && layanan[i].trim() !== ""){
 
       let b = parseFloat(berat[i]) || 0;
-      let h = parseFloat(harga[i]) || 0;
-      let s = parseFloat(subtotal[i]) || 0;
+      let h = parseRupiah(harga[i]);
+      let s = parseRupiah(subtotal[i]);
 
       tabel.innerHTML += `
         <tr><td colspan="3"><b>${layanan[i]}</b></td></tr>
@@ -65,12 +73,13 @@ function isiStruk(prefix){
     }
   }
 
-  let total = parseFloat(getParam("total")) || 0;
+  let total = parseRupiah(getParam("total"));
   document.getElementById(prefix+"total").innerHTML =
   "Rp" + formatRupiah(total);
 
+  /* QR LINK SUDAH SESUAI DOMAIN KAMU */
   let linkStatus =
-  "https://USERNAME.github.io/REPO/status.html?id=" + getParam("id_transaksi");
+  "https://mahfut25.github.io/nota_toko/status.html?id=" + getParam("id_transaksi");
 
   document.getElementById(prefix+"qr").src =
   "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="
