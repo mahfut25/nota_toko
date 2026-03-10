@@ -106,14 +106,18 @@ function kirim(){
     method:"POST",
     body: new URLSearchParams({id:id, kritik:kritik})
   })
-  .then(res=>res.text())
-  .then(res=>{
-    alert("Terima kasih atas masukan anda 🙏");
-    document.getElementById("kritik").value="";
+  .then(res => res.json()) // Ubah .text() menjadi .json()
+  .then(data => {
+    if(data.status === "success"){
+      alert("Terima kasih atas masukan anda 🙏");
+      document.getElementById("kritik").value="";
+    } else {
+      alert("Gagal: " + (data.message || "Terjadi kesalahan"));
+    }
   })
   .catch(err=>{
     console.error(err);
-    alert("Gagal mengirim masukan");
+    alert("Gagal mengirim masukan: " + err);
   });
 }
 </script>
