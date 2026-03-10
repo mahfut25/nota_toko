@@ -147,6 +147,7 @@ window.onload = function(){
 
     document.getElementById("total").innerHTML = "Rp" + formatRupiah(getParam("total"));
     document.getElementById("bayar").innerHTML = "Rp" + formatRupiah(getParam("bayar"));
+    document.getElementById("sedekah").innerHTML = "Rp" + formatRupiah(getParam("sedekah"));
     document.getElementById("kembali").innerHTML = "Rp" + formatRupiah(getParam("kembali"));
 }
 </script>
@@ -206,6 +207,11 @@ window.onload = function(){
     <td>Bayar</td>
     <td></td>
     <td align="right" id="bayar"></td>
+</tr>
+<tr>
+    <td>Sedekah</td>
+    <td></td>
+    <td align="right" id="sedekah"></td>
 </tr>
 <tr>
     <td>Kembali</td>
