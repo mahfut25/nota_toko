@@ -1,113 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta charset="UTF-8">
 <title>Status Laundry</title>
 
 <style>
-
 body{
-font-family:Arial;
-background:#f2f2f2;
-text-align:center;
-padding:20px;
+  font-family:Arial;
+  background:#f2f2f2;
+  padding:20px;
+  text-align:center;
 }
 
 .card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  max-width:350px;
+  margin:auto;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
 
-background:white;
-padding:20px;
-border-radius:10px;
-max-width:350px;
-margin:auto;
-
+.status{
+  font-size:18px;
+  font-weight:bold;
+  margin:10px 0;
 }
 
 textarea{
-
-width:100%;
-height:80px;
-
+  width:100%;
+  height:80px;
+  padding:5px;
+  margin-top:10px;
 }
 
 button{
-
-margin-top:10px;
-padding:10px;
-width:100%;
-background:black;
-color:white;
-border:none;
-
+  margin-top:10px;
+  padding:10px;
+  width:100%;
+  background:black;
+  color:white;
+  border:none;
+  cursor:pointer;
 }
-
 </style>
 
 </head>
-
 <body>
 
 <div class="card">
+  <h2>Status Laundry</h2>
 
-<h2>Status Laundry</h2>
+  <p>ID Transaksi</p>
+  <div class="status" id="id"></div>
 
-<p>ID : <span id="id"></span></p>
+  <p>Status</p>
+  <div class="status" id="status">Memuat...</div>
 
-<p>Status : <span id="status">Diproses</span></p>
+  <hr>
 
-<hr>
-
-<h3>Kritik / Masukan</h3>
-
-<textarea id="kritik" placeholder="Masukan anda..."></textarea>
-
-<button onclick="kirim()">Kirim</button>
-
+  <h3>Kritik / Masukan</h3>
+  <textarea id="kritik" placeholder="Tulis kritik atau masukan..."></textarea>
+  <button onclick="kirim()">Kirim Masukan</button>
 </div>
 
 <script>
-
 function getParam(p){
-
-return new URLSearchParams(window.location.search).get(p);
-
+  return new URLSearchParams(window.location.search).get(p);
 }
 
-document.getElementById("id").innerText=getParam("id");
+let id = getParam("id");
+document.getElementById("id").innerText = id;
 
-function kirim(){
+// Ganti dengan URL Web App Apps Script Anda
+const APPS_SCRIPT_URL = "PASTE_URL_APPS_SCRIPT_DISINI";
 
-let id=getParam("id");
-
-let kritik=document.getElementById("kritik").value;
-
-fetch("https://script.google.com/macros/s/AKfycbz1QLv6RkW4Ef9JNbT4U1tVQ6nSNIqPd72n74aTB1gaVtyUg2Il_so996bqzl3pYfqN1Q/exec",{
-
-method:"POST",
-
-body:new URLSearchParams({
-
-id:id,
-
-kritik:kritik
-
+// ======================
+// Ambil status dari spreadsheet
+// ======================
+fetch(APPS_SCRIPT_URL + "?" + new URLSearchParams({id: id}))
+.then(res => res.json())
+.then(data => {
+  document.getElementById("status").innerText = data.status;
 })
-
-})
-
-.then(res=>res.text())
-
-.then(res=>{
-
-alert("Terima kasih atas masukan anda 🙏");
-
+.catch(err=>{
+  console.error(err);
+  document.getElementById("status").innerText = "Gagal memuat status";
 });
 
-}
+// ======================
+// Kirim kritik ke spreadsheet
+// ======================
+function kirim(){
+  let kritik = document.getElementById("kritik").value.trim();
+  if(kritik==""){
+    alert("Masukan masih kosong");
+    return;
+  }
 
+  fetch(APPS_SCRIPT_URL, {
+    method:"POST",
+    body:new URLSearchParams({
+      id:id,
+      kritik:kritik
+    })
+  })
+  .then(res=>res.text())
+  .then(res=>{
+    alert("Terima kasih atas masukan anda 🙏");
+    document.getElementById("kritik").value="";
+  })
+  .catch(err=>{
+    console.error(err);
+    alert("Gagal mengirim masukan");
+  });
+}
 </script>
 
 </body>
-
 </html>
