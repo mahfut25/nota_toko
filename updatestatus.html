@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Status Laundry</title>
+<style>
+body{
+  font-family:Arial;
+  background:#f2f2f2;
+  padding:20px;
+  text-align:center;
+}
+.card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  max-width:350px;
+  margin:auto;
+  box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+.status{
+  font-size:18px;
+  font-weight:bold;
+  margin:10px 0;
+  color: #333;
+}
+/* Style untuk Dropdown */
+select{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:1px solid #ccc;
+  border-radius:5px;
+  font-size:16px;
+}
+button{
+  margin-top:15px;
+  padding:12px;
+  width:100%;
+  background:black;
+  color:white;
+  border:none;
+  cursor:pointer;
+  border-radius:5px;
+  font-size:16px;
+}
+button:hover{
+  background:#333;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Status Laundry</h2>
+
+  <p>ID Transaksi</p>
+  <div class="status" id="id">Memuat...</div>
+
+  <p>Status Saat Ini</p>
+  <div class="status" id="status">Memuat...</div>
+
+  <hr>
+
+  <!-- Bagian Baru: Update Status -->
+  <h3>Update Status</h3>
+  <select id="statusInput">
+    <option value="Diterima">Diterima</option>
+    <option value="Dicuci">Dicuci</option>
+    <option value="Dijemur">Dijemur</option>
+    <option value="DiSetrika">DiSetrika</option>
+    <option value="Siap Diambil">Siap Diambil</option>
+  </select>
+  
+  <button onclick="kirim()">Update Status</button>
+</div>
+
+<script>
+function getParam(p){
+  var params = new URLSearchParams(window.location.search);
+  return params.get(p);
+}
+
+let id = getParam("id");
+if(!id){
+  alert("ID Transaksi tidak ditemukan. Pastikan scan QR yang benar.");
+}
+document.getElementById("id").innerText = id || "-";
+
+// Ganti dengan URL Web App Apps Script Anda
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVGrK0JqyRBv-uDtCDWR12Bex_CF7ZfCAw8IN87gTfpDgMwvvFmbdBySG_hkz8b5olIA/exec";
+
+// ======================
+// Ambil status dari spreadsheet
+// ======================
+if(id){
+  var query = "id=" + encodeURIComponent(id);
+  fetch(APPS_SCRIPT_URL + "?" + query)
+  .then(res => res.json())
+  .then(data => {
+    // Menampilkan status yang ada
+    document.getElementById("status").innerText = data.status || "Diproses";
+    
+    // Opsional: Jika Anda ingin dropdown otomatis memilih status yang sedang berjalan
+    // Uncomment baris di bawah ini jika ingin dropdown menyesuaikan status saat ini
+    // document.getElementById("statusInput").value = data.status || "Diterima";
+  })
+  .catch(err=>{
+    console.error(err);
+    document.getElementById("status").innerText = "Gagal memuat status";
+  });
+}
+
+// ======================
+// Kirim update status ke spreadsheet
+// ======================
+function kirim(){
+  let newStatus = document.getElementById("statusInput").value;
+  
+  if(!id){
+    alert("ID Transaksi tidak valid");
+    return;
+  }
+
+  // Konfirmasi sebelum update
+  if(!confirm("Apakah Anda yakin ingin mengubah status menjadi: " + newStatus + "?")){
+    return;
+  }
+
+  // Mengirim parameter 'status' alih-alih 'kritik'
+  var body = "id=" + encodeURIComponent(id) + "&status=" + encodeURIComponent(newStatus);
+
+  fetch(APPS_SCRIPT_URL, {
+    method:"POST",
+    body: body
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.status === "success"){
+      alert("Status berhasil diperbarui menjadi: " + newStatus);
+      // Refresh halaman agar status terbaru muncul
+      location.reload(); 
+    } else {
+      alert("Gagal: " + (data.message || "Terjadi kesalahan"));
+    }
+  })
+  .catch(err=>{
+    console.error(err);
+    alert("Gagal mengirim update: " + err);
+  });
+}
+</script>
+
+</body>
+</html>
