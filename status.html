@@ -60,7 +60,8 @@ button{
 
 <script>
 function getParam(p){
-  return new URLSearchParams(window.location.search).get(p);
+  var params = new URLSearchParams(window.location.search);
+  return params.get(p);
 }
 
 let id = getParam("id");
@@ -76,7 +77,9 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVGrK0JqyRBv-u
 // Ambil status dari spreadsheet
 // ======================
 if(id){
-  fetch(APPS_SCRIPT_URL + "?" + new URLSearchParams({id:id}))
+  // Ganti URLSearchParams dengan manual string
+  var query = "id=" + encodeURIComponent(id);
+  fetch(APPS_SCRIPT_URL + "?" + query)
   .then(res => res.json())
   .then(data => {
     document.getElementById("status").innerText = data.status || "Diproses";
@@ -102,9 +105,12 @@ function kirim(){
     return;
   }
 
+  // Ganti URLSearchParams dengan manual string
+  var body = "id=" + encodeURIComponent(id) + "&kritik=" + encodeURIComponent(kritik);
+
   fetch(APPS_SCRIPT_URL, {
     method:"POST",
-    body: new URLSearchParams({id:id, kritik:kritik})
+    body: body
   })
   .then(res => res.json()) // Ubah .text() menjadi .json()
   .then(data => {
