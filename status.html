@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Status Laundry</title>
-
 <style>
 body{
   font-family:Arial;
@@ -11,7 +10,6 @@ body{
   padding:20px;
   text-align:center;
 }
-
 .card{
   background:white;
   padding:20px;
@@ -20,20 +18,17 @@ body{
   margin:auto;
   box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
-
 .status{
   font-size:18px;
   font-weight:bold;
   margin:10px 0;
 }
-
 textarea{
   width:100%;
   height:80px;
   padding:5px;
   margin-top:10px;
 }
-
 button{
   margin-top:10px;
   padding:10px;
@@ -44,7 +39,6 @@ button{
   cursor:pointer;
 }
 </style>
-
 </head>
 <body>
 
@@ -52,7 +46,7 @@ button{
   <h2>Status Laundry</h2>
 
   <p>ID Transaksi</p>
-  <div class="status" id="id"></div>
+  <div class="status" id="id">Memuat...</div>
 
   <p>Status</p>
   <div class="status" id="status">Memuat...</div>
@@ -70,7 +64,10 @@ function getParam(p){
 }
 
 let id = getParam("id");
-document.getElementById("id").innerText = id;
+if(!id){
+  alert("ID Transaksi tidak ditemukan. Pastikan scan QR yang benar.");
+}
+document.getElementById("id").innerText = id || "-";
 
 // Ganti dengan URL Web App Apps Script Anda
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1QLv6RkW4Ef9JNbT4U1tVQ6nSNIqPd72n74aTB1gaVtyUg2Il_so996bqzl3pYfqN1Q/exec";
@@ -78,33 +75,36 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1QLv6RkW4Ef9J
 // ======================
 // Ambil status dari spreadsheet
 // ======================
-fetch(APPS_SCRIPT_URL + "?" + new URLSearchParams({id: id}))
-.then(res => res.json())
-.then(data => {
-  document.getElementById("status").innerText = data.status;
-})
-.catch(err=>{
-  console.error(err);
-  document.getElementById("status").innerText = "Gagal memuat status";
-});
+if(id){
+  fetch(APPS_SCRIPT_URL + "?" + new URLSearchParams({id:id}))
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("status").innerText = data.status || "Diproses";
+  })
+  .catch(err=>{
+    console.error(err);
+    document.getElementById("status").innerText = "Gagal memuat status";
+  });
+}
 
 // ======================
 // Kirim kritik ke spreadsheet
 // ======================
 function kirim(){
   let kritik = document.getElementById("kritik").value.trim();
-  if(kritik==""){
+  if(!kritik){
     alert("Masukan masih kosong");
     return;
   }
 
-fetch("https://script.google.com/macros/s/AKfycbz1QLv6RkW4Ef9JNbT4U1tVQ6nSNIqPd72n74aTB1gaVtyUg2Il_so996bqzl3pYfqN1Q/exec", {
-  method: "POST",
-  body: new URLSearchParams({
-    id: id,
-    kritik: kritik
-  })
-})
+  if(!id){
+    alert("ID Transaksi tidak valid");
+    return;
+  }
+
+  fetch(APPS_SCRIPT_URL, {
+    method:"POST",
+    body: new URLSearchParams({id:id, kritik:kritik})
   })
   .then(res=>res.text())
   .then(res=>{
