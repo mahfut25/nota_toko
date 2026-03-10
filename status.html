@@ -98,10 +98,12 @@ function kirim(){
     return;
   }
 
- fetch(APPS_SCRIPT_URL,{
-  method:"POST",
-  headers: { "Content-Type":"application/json" },
-  body: JSON.stringify({id:id, kritik:kritik})
+fetch("https://script.google.com/macros/s/AKfycbz1QLv6RkW4Ef9JNbT4U1tVQ6nSNIqPd72n74aTB1gaVtyUg2Il_so996bqzl3pYfqN1Q/exec", {
+  method: "POST",
+  body: new URLSearchParams({
+    id: id,
+    kritik: kritik
+  })
 })
   })
   .then(res=>res.text())
