@@ -91,7 +91,7 @@ function isiStruk(prefix,isArsip){
  let berat = (getParam("berat") || "").split("|");
  let harga = (getParam("harga") || "").split("|");
  let subtotal = (getParam("subtotal") || "").split("|");
-
+let statusBayar = (getParam("status_bayar") || "belum").toLowerCase();
  let tabel = document.getElementById(prefix+"detail");
  tabel.innerHTML="";
 
