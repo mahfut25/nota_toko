@@ -118,6 +118,23 @@ let statusBayar = (getParam("status_bayar") || "belum").toLowerCase();
  let total=parseRupiah(getParam("total"));
  document.getElementById(prefix+"total").innerHTML="Rp"+formatRupiah(total);
 
+ let elBayar = document.getElementById(prefix+"status_bayar");
+
+elBayar.classList.remove("lunas","belum","dp");
+
+if(statusBayar === "lunas"){
+ elBayar.innerHTML = "PEMBAYARAN: LUNAS";
+ elBayar.classList.add("lunas");
+}
+else if(statusBayar === "dp"){
+ elBayar.innerHTML = "PEMBAYARAN: DP";
+ elBayar.classList.add("dp");
+}
+else{
+ elBayar.innerHTML = "PEMBAYARAN: BELUM LUNAS";
+ elBayar.classList.add("belum");
+}
+ 
  let link;
 
  if(isArsip){
