@@ -168,32 +168,32 @@ window.onload=function(){
 
 function printStruk(jenis){
 
- let isi = "";
+ // reset dulu
+ document.body.classList.remove("print-konsumen","print-arsip");
 
- if(jenis === "konsumen"){
-   isi = document.getElementById("struk_konsumen").outerHTML;
- }else{
-   isi = document.getElementById("struk_arsip").outerHTML;
- }
+ // pakai requestAnimationFrame biar lebih stabil dari setTimeout
+ requestAnimationFrame(() => {
 
- let w = window.open("", "", "width=300,height=600");
+   if(jenis === "konsumen"){
+     document.body.classList.add("print-konsumen");
+   }else{
+     document.body.classList.add("print-arsip");
+   }
 
- w.document.write(`
-   <html>
-   <head>
-     <title>Cetak</title>
-     <style>
-       body{font-family:monospace;}
-       .struk{width:230px;margin:auto;}
-     </style>
-   </head>
-   <body onload="window.print();window.close();">
-     ${isi}
-   </body>
-   </html>
- `);
+   // delay dikit lagi biar AppSheet keburu render
+   setTimeout(() => {
 
- w.document.close();
+     window.print();
+
+     // reset setelah print (pakai delay lagi biar aman)
+     setTimeout(()=>{
+       document.body.classList.remove("print-konsumen","print-arsip");
+     }, 500);
+
+   }, 300);
+
+ });
+
 }
 </script>
 
