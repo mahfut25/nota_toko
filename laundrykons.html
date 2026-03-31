@@ -37,17 +37,6 @@ body{background:white;}
 .belum{color:red;}
 .dp{color:orange;}
  
-@media print {
-
- body.print-konsumen #struk_arsip{
-  display:none;
- }
-
- body.print-arsip #struk_konsumen{
-  display:none;
- }
-
-}
 </style>
 
 <script>
@@ -166,35 +155,6 @@ window.onload=function(){
 
 }
 
-function printStruk(jenis){
-
- // reset dulu
- document.body.classList.remove("print-konsumen","print-arsip");
-
- // pakai requestAnimationFrame biar lebih stabil dari setTimeout
- requestAnimationFrame(() => {
-
-   if(jenis === "konsumen"){
-     document.body.classList.add("print-konsumen");
-   }else{
-     document.body.classList.add("print-arsip");
-   }
-
-   // delay dikit lagi biar AppSheet keburu render
-   setTimeout(() => {
-
-     window.print();
-
-     // reset setelah print (pakai delay lagi biar aman)
-     setTimeout(()=>{
-       document.body.classList.remove("print-konsumen","print-arsip");
-     }, 500);
-
-   }, 300);
-
- });
-
-}
 </script>
 
 </head>
@@ -204,12 +164,12 @@ function printStruk(jenis){
 <div class="wrapper">
 
 <!-- STRUK KONSUMEN -->
-<div class="struk" id="struk_konsumen">
-    
+<div class="struk">
+
 <div class="copy-title">STRUK LAUNDRY - KONSUMEN</div>
 
 <div class="center">
-<img src="Logo_Laundry.jpg" class="logo"><br>
+<img src="Logo.png" class="logo"><br>
 <b id="c1_nama_toko"></b><br>
 <span id="c1_alamat_toko"></span><br>
 <span id="c1_telp_toko"></span>
@@ -241,54 +201,6 @@ Total: <span class="total" id="c1_total"></span>
 <div class="footer-text">
 Terima kasih sudah mempercayakan layanan laundry anda kepada kami
 </div>
-
-</div>
-
-
-
-<!-- STRUK ARSIP USAHA -->
-<div class="struk" id="struk_arsip">
-
-<div class="copy-title">ARSIP USAHA</div>
-
-<div class="center">
-<img src="Logo_Laundry.jpg" class="logo"><br>
-<b id="c2_nama_toko"></b><br>
-<span id="c2_alamat_toko"></span><br>
-<span id="c2_telp_toko"></span>
-</div>
-
-<hr>
-
-<table>
-<tr><td>ID</td><td>:</td><td id="c2_id"></td></tr>
-<tr><td>Pelanggan</td><td>:</td><td id="c2_nama"></td></tr>
-<tr><td>Masuk</td><td>:</td><td id="c2_masuk"></td></tr>
-<tr><td>Selesai</td><td>:</td><td id="c2_selesai"></td></tr>
-</table>
-
-<hr>
-
-<table id="c2_detail"></table>
-
-<hr>
-
-Total: <span class="total" id="c2_total"></span>
-
-<div class="qr">
-<img id="c2_qr" width="100">
-</div>
-
-<div class="status-bayar" id="c2_status_bayar"></div>
- 
-<div class="footer-text">
-Struk Arsip Usaha
-</div>
-
-</div>
-
-<button class="btn-print" onclick="printStruk('konsumen')">Cetak Konsumen</button>
-<button class="btn-print" onclick="printStruk('arsip')">Cetak Arsip</button>
 
 </div>
 
