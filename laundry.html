@@ -37,6 +37,17 @@ body{background:white;}
 .belum{color:red;}
 .dp{color:orange;}
  
+@media print {
+
+ body.print-konsumen #struk_arsip{
+  display:none;
+ }
+
+ body.print-arsip #struk_konsumen{
+  display:none;
+ }
+
+}
 </style>
 
 <script>
@@ -155,6 +166,25 @@ window.onload=function(){
 
 }
 
+function printStruk(jenis){
+
+ let konsumen = document.getElementById("struk_konsumen");
+ let arsip = document.getElementById("struk_arsip");
+
+ if(jenis === "konsumen"){
+   arsip.style.display = "none";
+   konsumen.style.display = "block";
+ }else{
+   konsumen.style.display = "none";
+   arsip.style.display = "block";
+ }
+
+ window.print();
+
+ // balikin lagi setelah print
+ arsip.style.display = "block";
+ konsumen.style.display = "block";
+}
 </script>
 
 </head>
@@ -164,8 +194,8 @@ window.onload=function(){
 <div class="wrapper">
 
 <!-- STRUK KONSUMEN -->
-<div class="struk">
-
+<div class="struk" id="struk_konsumen">
+    
 <div class="copy-title">STRUK LAUNDRY - KONSUMEN</div>
 
 <div class="center">
@@ -207,7 +237,7 @@ Terima kasih sudah mempercayakan layanan laundry anda kepada kami
 
 
 <!-- STRUK ARSIP USAHA -->
-<div class="struk">
+<div class="struk" id="struk_arsip">
 
 <div class="copy-title">ARSIP USAHA</div>
 
@@ -247,7 +277,8 @@ Struk Arsip Usaha
 
 </div>
 
-<button class="btn-print" onclick="window.print()">Cetak</button>
+<button class="btn-print" onclick="printStruk('konsumen')">Cetak Konsumen</button>
+<button class="btn-print" onclick="printStruk('arsip')">Cetak Arsip</button>
 
 </div>
 
