@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Struk Laundry</title>
+
+<style>
+body{font-family:monospace;background:#f4f4f4;}
+.wrapper{width:230px;margin:auto;}
+.struk{background:#fff;padding:10px;border:1px solid #ccc;margin-bottom:20px;}
+.center{text-align:center;}
+hr{border-top:1px dashed #000;}
+.logo{width:60px;margin-bottom:5px;}
+table{width:100%;font-size:11px;border-collapse:collapse;}
+.total{font-weight:bold;font-size:13px;}
+.qr{text-align:center;margin-top:8px;}
+.copy-title{text-align:center;font-weight:bold;font-size:12px;margin-bottom:5px;}
+.footer-text{margin-top:10px;text-align:center;font-size:11px;font-weight:bold;}
+.btn-print{margin-top:15px;width:100%;padding:8px;background:black;color:white;border:none;}
+
+@media print{
+.btn-print{display:none;}
+body{background:white;}
+.struk{border:none;}
+}
+
+ .status-bayar{
+ text-align:center;
+ margin-top:8px;
+ font-size:13px;
+ font-weight:bold;
+ padding:5px;
+ border-top:1px dashed #000;
+}
+
+.lunas{color:green;}
+.belum{color:red;}
+.dp{color:orange;}
+ 
+</style>
+
+<script>
+
+function getParam(p){
+ return new URLSearchParams(window.location.search).get(p);
+}
+
+function formatRupiah(a){
+ if(!a || isNaN(a)) return "0";
+ return new Intl.NumberFormat('id-ID').format(a);
+}
+
+function parseRupiah(str){
+ if(!str) return 0;
+ return parseFloat(str.replace(/[^0-9]/g,'')) || 0;
+}
+
+function formatDateTime(datetimeStr){
+
+ if (!datetimeStr) return "";
+
+ let date = new Date(datetimeStr.replace(' ', 'T'));
+
+ if (!isNaN(date.getTime())) {
+
+  let d = String(date.getDate()).padStart(2,'0');
+  let m = String(date.getMonth()+1).padStart(2,'0');
+  let y = date.getFullYear();
+  let h = String(date.getHours()).padStart(2,'0');
+  let min = String(date.getMinutes()).padStart(2,'0');
+
+  return d+"/"+m+"/"+y+" "+h+":"+min;
+
+ }
+
+ return datetimeStr;
+}
+
+function isiStruk(prefix,isArsip){
+
+ document.getElementById(prefix+"nama_toko").innerHTML = getParam("nama_toko") || "";
+ document.getElementById(prefix+"alamat_toko").innerHTML = getParam("alamat_toko") || "";
+ document.getElementById(prefix+"telp_toko").innerHTML = "Telp: "+(getParam("telp_toko") || "");
+
+ document.getElementById(prefix+"id").innerHTML = getParam("id_transaksi") || "-";
+ document.getElementById(prefix+"nama").innerHTML = getParam("nama_pelanggan") || "-";
+ document.getElementById(prefix+"masuk").innerHTML = formatDateTime(getParam("tanggal_masuk"));
+ document.getElementById(prefix+"selesai").innerHTML = formatDateTime(getParam("tanggal_selesai"));
+
+ let layanan = (getParam("layanan") || "").split("|");
+ let berat = (getParam("berat") || "").split("|");
+ let harga = (getParam("harga") || "").split("|");
+ let subtotal = (getParam("subtotal") || "").split("|");
+let statusBayar = (getParam("status_bayar") || "belum").toLowerCase();
+ let tabel = document.getElementById(prefix+"detail");
+ tabel.innerHTML="";
+
+ for(let i=0;i<layanan.length;i++){
+
+  if(layanan[i]){
+
+   let b=parseFloat(berat[i])||0;
+   let h=parseRupiah(harga[i]);
+   let s=parseRupiah(subtotal[i]);
+
+   tabel.innerHTML +=
+   "<tr><td colspan='3'><b>"+layanan[i]+"</b></td></tr>"+
+   "<tr>"+
+   "<td style='padding-left:10px'>"+b+" Kg x Rp"+formatRupiah(h)+"</td>"+
+   "<td></td>"+
+   "<td align='right'>Rp"+formatRupiah(s)+"</td>"+
+   "</tr>";
+
+  }
+
+ }
+
+ let total=parseRupiah(getParam("total"));
+ document.getElementById(prefix+"total").innerHTML="Rp"+formatRupiah(total);
+
+ let elBayar = document.getElementById(prefix+"status_bayar");
+
+elBayar.classList.remove("lunas","belum","dp");
+
+if(statusBayar === "lunas"){
+ elBayar.innerHTML = "PEMBAYARAN: LUNAS";
+ elBayar.classList.add("lunas");
+}
+else if(statusBayar === "dp"){
+ elBayar.innerHTML = "PEMBAYARAN: DP";
+ elBayar.classList.add("dp");
+}
+else{
+ elBayar.innerHTML = "PEMBAYARAN: BELUM LUNAS";
+ elBayar.classList.add("belum");
+}
+ 
+ let link;
+
+ if(isArsip){
+   link="https://mahfut25.github.io/nota_toko/updatestatus.html?id="+getParam("id_transaksi");
+ }else{
+   link="https://mahfut25.github.io/nota_toko/status.html?id="+getParam("id_transaksi");
+ }
+
+ document.getElementById(prefix+"qr").src =
+ "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="+encodeURIComponent(link);
+
+}
+
+window.onload=function(){
+
+ isiStruk("c1_",false); // struk konsumen
+ isiStruk("c2_",true);  // struk arsip
+
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+
+<!-- STRUK ARSIP USAHA -->
+<div class="struk">
+
+<div class="copy-title">ARSIP USAHA</div>
+
+<div class="center">
+<img src="Logo_Laundry.jpg" class="logo"><br>
+<b id="c2_nama_toko"></b><br>
+<span id="c2_alamat_toko"></span><br>
+<span id="c2_telp_toko"></span>
+</div>
+
+<hr>
+
+<table>
+<tr><td>ID</td><td>:</td><td id="c2_id"></td></tr>
+<tr><td>Pelanggan</td><td>:</td><td id="c2_nama"></td></tr>
+<tr><td>Masuk</td><td>:</td><td id="c2_masuk"></td></tr>
+<tr><td>Selesai</td><td>:</td><td id="c2_selesai"></td></tr>
+</table>
+
+<hr>
+
+<table id="c2_detail"></table>
+
+<hr>
+
+Total: <span class="total" id="c2_total"></span>
+
+<div class="qr">
+<img id="c2_qr" width="100">
+</div>
+
+<div class="status-bayar" id="c2_status_bayar"></div>
+ 
+<div class="footer-text">
+Struk Arsip Usaha
+</div>
+
+</div>
+
+<button class="btn-print" onclick="window.print()">Cetak</button>
+
+</div>
+
+</body>
+</html>
