@@ -2,47 +2,68 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Struk Konsumen</title>
+<title>Struk Laundry Konsumen</title>
 
 <style>
 body{font-family:monospace;background:#f4f4f4;}
 .wrapper{width:230px;margin:auto;}
-.struk{background:#fff;padding:10px;border:1px solid #ccc;}
+.struk{background:#fff;padding:10px;border:1px solid #ccc;margin-bottom:20px;}
 .center{text-align:center;}
 hr{border-top:1px dashed #000;}
 .logo{width:60px;margin-bottom:5px;}
 table{width:100%;font-size:11px;border-collapse:collapse;}
 .total{font-weight:bold;font-size:13px;}
 .qr{text-align:center;margin-top:8px;}
+.copy-title{text-align:center;font-weight:bold;font-size:12px;margin-bottom:5px;}
 .footer-text{margin-top:10px;text-align:center;font-size:11px;font-weight:bold;}
 .btn-print{margin-top:15px;width:100%;padding:8px;background:black;color:white;border:none;}
-
-.status-bayar{text-align:center;margin-top:8px;font-size:13px;font-weight:bold;padding:5px;border-top:1px dashed #000;}
-.lunas{color:green;}
-.belum{color:red;}
-.dp{color:orange;}
 
 @media print{
 .btn-print{display:none;}
 body{background:white;}
 .struk{border:none;}
 }
+
+.status-bayar{
+ text-align:center;
+ margin-top:8px;
+ font-size:13px;
+ font-weight:bold;
+ padding:5px;
+ border-top:1px dashed #000;
+}
+
+.lunas{color:green;}
+.belum{color:red;}
+.dp{color:orange;}
 </style>
 
 <script>
-function getParam(p){return new URLSearchParams(window.location.search).get(p);}
-function formatRupiah(a){return (!a||isNaN(a))?"0":new Intl.NumberFormat('id-ID').format(a);}
-function parseRupiah(str){return str?parseFloat(str.replace(/[^0-9]/g,''))||0:0;}
+
+function getParam(p){
+ return new URLSearchParams(window.location.search).get(p);
+}
+
+function formatRupiah(a){
+ if(!a || isNaN(a)) return "0";
+ return new Intl.NumberFormat('id-ID').format(a);
+}
+
+function parseRupiah(str){
+ if(!str) return 0;
+ return parseFloat(str.replace(/[^0-9]/g,'')) || 0;
+}
 
 function formatDateTime(datetimeStr){
  if (!datetimeStr) return "";
  let date = new Date(datetimeStr.replace(' ', 'T'));
  if (!isNaN(date.getTime())) {
-  return String(date.getDate()).padStart(2,'0')+"/"+
-         String(date.getMonth()+1).padStart(2,'0')+"/"+
-         date.getFullYear()+" "+
-         String(date.getHours()).padStart(2,'0')+":"+
-         String(date.getMinutes()).padStart(2,'0');
+  let d = String(date.getDate()).padStart(2,'0');
+  let m = String(date.getMonth()+1).padStart(2,'0');
+  let y = date.getFullYear();
+  let h = String(date.getHours()).padStart(2,'0');
+  let min = String(date.getMinutes()).padStart(2,'0');
+  return d+"/"+m+"/"+y+" "+h+":"+min;
  }
  return datetimeStr;
 }
@@ -57,46 +78,68 @@ function isiStruk(){
  document.getElementById("masuk").innerHTML = formatDateTime(getParam("tanggal_masuk"));
  document.getElementById("selesai").innerHTML = formatDateTime(getParam("tanggal_selesai"));
 
- let layanan = (getParam("layanan")||"").split("|");
- let berat = (getParam("berat")||"").split("|");
- let harga = (getParam("harga")||"").split("|");
- let subtotal = (getParam("subtotal")||"").split("|");
+ let layanan = (getParam("layanan") || "").split("|");
+ let berat = (getParam("berat") || "").split("|");
+ let harga = (getParam("harga") || "").split("|");
+ let subtotal = (getParam("subtotal") || "").split("|");
+ let statusBayar = (getParam("status_bayar") || "belum").toLowerCase();
+ let tabel = document.getElementById("detail");
+ tabel.innerHTML="";
 
- let tabel=document.getElementById("detail");
  for(let i=0;i<layanan.length;i++){
   if(layanan[i]){
-   tabel.innerHTML+=`
-   <tr><td colspan='3'><b>${layanan[i]}</b></td></tr>
-   <tr>
-   <td style='padding-left:10px'>${berat[i]} Kg x Rp${formatRupiah(parseRupiah(harga[i]))}</td>
-   <td></td>
-   <td align='right'>Rp${formatRupiah(parseRupiah(subtotal[i]))}</td>
-   </tr>`;
+   let b=parseFloat(berat[i])||0;
+   let h=parseRupiah(harga[i]);
+   let s=parseRupiah(subtotal[i]);
+   tabel.innerHTML +=
+   "<tr><td colspan='3'><b>"+layanan[i]+"</b></td></tr>"+
+   "<tr>"+
+   "<td style='padding-left:10px'>"+b+" Kg x Rp"+formatRupiah(h)+"</td>"+
+   "<td></td>"+
+   "<td align='right'>Rp"+formatRupiah(s)+"</td>"+
+   "</tr>";
   }
  }
 
- document.getElementById("total").innerHTML="Rp"+formatRupiah(parseRupiah(getParam("total")));
+ let total=parseRupiah(getParam("total"));
+ document.getElementById("total").innerHTML="Rp"+formatRupiah(total);
 
- let status=(getParam("status_bayar")||"belum").toLowerCase();
- let el=document.getElementById("status_bayar");
- el.classList.remove("lunas","belum","dp");
+ let elBayar = document.getElementById("status_bayar");
+ elBayar.classList.remove("lunas","belum","dp");
 
- if(status==="lunas"){el.innerHTML="PEMBAYARAN: LUNAS";el.classList.add("lunas");}
- else if(status==="dp"){el.innerHTML="PEMBAYARAN: DP";el.classList.add("dp");}
- else{el.innerHTML="PEMBAYARAN: BELUM LUNAS";el.classList.add("belum");}
-
- let link="https://mahfut25.github.io/nota_toko/status.html?id="+getParam("id_transaksi");
- document.getElementById("qr").src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="+encodeURIComponent(link);
+ if(statusBayar === "lunas"){
+  elBayar.innerHTML = "PEMBAYARAN: LUNAS";
+  elBayar.classList.add("lunas");
+ }
+ else if(statusBayar === "dp"){
+  elBayar.innerHTML = "PEMBAYARAN: DP";
+  elBayar.classList.add("dp");
+ }
+ else{
+  elBayar.innerHTML = "PEMBAYARAN: BELUM LUNAS";
+  elBayar.classList.add("belum");
+ }
+ 
+ let link = "https://mahfut25.github.io/nota_toko/status.html?id="+getParam("id_transaksi");
+ document.getElementById("qr").src =
+ "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data="+encodeURIComponent(link);
 }
 
-window.onload=isiStruk;
+window.onload=function(){
+ isiStruk();
+}
+
 </script>
 
 </head>
 
 <body>
+
 <div class="wrapper">
+
 <div class="struk">
+
+<div class="copy-title">STRUK LAUNDRY - KONSUMEN</div>
 
 <div class="center">
 <img src="Logo.png" class="logo"><br>
@@ -115,7 +158,9 @@ window.onload=isiStruk;
 </table>
 
 <hr>
+
 <table id="detail"></table>
+
 <hr>
 
 Total: <span class="total" id="total"></span>
@@ -125,7 +170,7 @@ Total: <span class="total" id="total"></span>
 </div>
 
 <div class="status-bayar" id="status_bayar"></div>
-
+ 
 <div class="footer-text">
 Terima kasih sudah mempercayakan layanan laundry anda kepada kami
 </div>
@@ -133,6 +178,8 @@ Terima kasih sudah mempercayakan layanan laundry anda kepada kami
 </div>
 
 <button class="btn-print" onclick="window.print()">Cetak</button>
+
 </div>
+
 </body>
 </html>
