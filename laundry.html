@@ -168,22 +168,32 @@ window.onload=function(){
 
 function printStruk(jenis){
 
- let konsumen = document.getElementById("struk_konsumen");
- let arsip = document.getElementById("struk_arsip");
+ let isi = "";
 
  if(jenis === "konsumen"){
-   arsip.style.display = "none";
-   konsumen.style.display = "block";
+   isi = document.getElementById("struk_konsumen").outerHTML;
  }else{
-   konsumen.style.display = "none";
-   arsip.style.display = "block";
+   isi = document.getElementById("struk_arsip").outerHTML;
  }
 
- window.print();
+ let w = window.open("", "", "width=300,height=600");
 
- // balikin lagi setelah print
- arsip.style.display = "block";
- konsumen.style.display = "block";
+ w.document.write(`
+   <html>
+   <head>
+     <title>Cetak</title>
+     <style>
+       body{font-family:monospace;}
+       .struk{width:230px;margin:auto;}
+     </style>
+   </head>
+   <body onload="window.print();window.close();">
+     ${isi}
+   </body>
+   </html>
+ `);
+
+ w.document.close();
 }
 </script>
 
@@ -199,7 +209,7 @@ function printStruk(jenis){
 <div class="copy-title">STRUK LAUNDRY - KONSUMEN</div>
 
 <div class="center">
-<img src="Logo.png" class="logo"><br>
+<img src="Logo_Laundry.jpg" class="logo"><br>
 <b id="c1_nama_toko"></b><br>
 <span id="c1_alamat_toko"></span><br>
 <span id="c1_telp_toko"></span>
@@ -242,7 +252,7 @@ Terima kasih sudah mempercayakan layanan laundry anda kepada kami
 <div class="copy-title">ARSIP USAHA</div>
 
 <div class="center">
-<img src="Logo.png" class="logo"><br>
+<img src="Logo_Laundry.jpg" class="logo"><br>
 <b id="c2_nama_toko"></b><br>
 <span id="c2_alamat_toko"></span><br>
 <span id="c2_telp_toko"></span>
