@@ -39,7 +39,47 @@ body{background:white;}
 .dp{color:orange;}
 </style>
 
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+ 
 <script>
+
+async function kirimWAGambar(){
+
+ let no = getParam("no_hp") || "";
+
+ if(no.startsWith("0")){
+   no = "62" + no.substring(1);
+ }
+
+ let struk = document.querySelector(".struk");
+
+ // ambil gambar dari struk
+ let canvas = await html2canvas(struk);
+ let imgData = canvas.toDataURL("image/png");
+
+ let nama = getParam("nama_pelanggan") || "";
+ let id = getParam("id_transaksi") || "";
+
+ let pesan = `Halo ${nama}, berikut struk laundry Anda (ID: ${id})`;
+
+ // ⚠️ WA tidak bisa kirim image base64 langsung
+ // jadi kita buka WA + tampilkan gambar untuk disimpan manual
+
+ let newTab = window.open();
+ newTab.document.write(`
+   <html>
+   <head><title>Kirim WA</title></head>
+   <body style="text-align:center;font-family:sans-serif">
+     <h3>Simpan gambar lalu kirim ke WhatsApp</h3>
+     <img src="${imgData}" style="width:300px"><br><br>
+     <a href="https://wa.me/${no}?text=${encodeURIComponent(pesan)}" target="_blank">
+       <button style="padding:10px 20px">Buka WhatsApp</button>
+     </a>
+   </body>
+   </html>
+ `);
+
+}
 
 function getParam(p){
  return new URLSearchParams(window.location.search).get(p);
@@ -179,6 +219,7 @@ Terima kasih sudah mempercayakan layanan laundry anda kepada kami<br><br><br>
 </div>
 
 <button class="btn-print" onclick="window.print()">Cetak</button>
+<button class="btn-print" onclick="kirimWAGambar()">Kirim WA (Struk)</button>
 
 </div>
 
