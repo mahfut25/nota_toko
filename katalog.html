@@ -19,6 +19,8 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .btn {
             padding: 10px 18px;
@@ -144,9 +146,9 @@
 </div>
 
 <script>
-    // ============ GANTI dengan URL CSV spreadsheet Anda ============
+    // ==================== HANYA SATU DEKLARASI CSV_URL ====================
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTSRJjxKGpJpw-fSNPL2KMvpK-lkenWbVnezEuA63QXRApHHmtNc3pxcTfwweKnITOvFxSpF4QD3JWv/pub?gid=0&single=true&output=csv';
-    // ================================================================
+    // ======================================================================
 
     const container = document.getElementById('catalogContainer');
     const statusEl = document.getElementById('status');
@@ -156,7 +158,9 @@
         statusEl.textContent = 'Mengambil data...';
 
         try {
-            const response = await fetch(CSV_URL);
+            // Gunakan proxy CORS untuk mengatasi error origin null (file://)
+            const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL);
+            const response = await fetch(proxyUrl);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const csvText = await response.text();
             const products = parseCSV(csvText);
@@ -174,7 +178,7 @@
         if (lines.length < 2) return [];
 
         const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-        // Cari indeks kolom yang dibutuhkan
+        // Cari indeks kolom yang dibutuhkan (case-insensitive)
         const idx = {
             nama: headers.findIndex(h => h.toLowerCase().includes('nama produk')),
             hargaJual: headers.findIndex(h => h.toLowerCase().includes('harga jual')),
@@ -182,16 +186,12 @@
             minGrosir: headers.findIndex(h => h.toLowerCase().includes('jml min grosir')),
             stok: headers.findIndex(h => h.toLowerCase().includes('stok')),
             gambar: headers.findIndex(h => h.toLowerCase().includes('gambar')),
-            // Kolom lain bisa ditambahkan jika ingin ditampilkan
         };
-
-        // Fallback: jika nama header tidak persis, coba sesuaikan secara manual
-        // (Di sini kita asumsikan header sesuai dengan struktur Anda)
 
         const products = [];
         for (let i = 1; i < lines.length; i++) {
             const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-            if (cols.length < headers.length) continue; // lewati baris kosong/tidak lengkap
+            if (cols.length < headers.length) continue;
 
             const nama = idx.nama >= 0 ? cols[idx.nama] : '';
             const hargaJual = idx.hargaJual >= 0 ? parseFloat(cols[idx.hargaJual]) : 0;
@@ -200,7 +200,7 @@
             const stok = idx.stok >= 0 ? parseInt(cols[idx.stok]) : null;
             const gambar = idx.gambar >= 0 ? cols[idx.gambar] : '';
 
-            if (!nama) continue; // lewati baris tanpa nama
+            if (!nama) continue;
 
             products.push({
                 nama,
@@ -299,7 +299,7 @@
         return div;
     }
 
-    // Muat data saat halaman dibuka
+    // Muat data saat halaman pertama kali dibuka
     loadData();
 </script>
 
